@@ -366,7 +366,8 @@ SELECT m.month_start_date as month,
 
 ## Churn analysis
 
-The following calculates the pairwise correlation of columns in `marts.account_interactions_encoded`.
+The following calculates the pairwise correlation of columns in `marts.account_interactions_encoded`. The details are in the Jupyter notebook [churn_analysis.ipynb](./notebooks/churn_analysis.ipynb).
+
 The result suggests that the `has_call` column has the highest correlation with `is_churned`.
 
 A closer look shows that the customers who stayed did not have a call one month before churn. Excluding the call-related columns, shorter tenure and younger age increase the churn rate.
