@@ -1,0 +1,31 @@
+version: 2
+
+sources:
+  - name: input
+    tables:
+      - name: account_info
+        description: The account_info table in the input schema.
+        columns:
+          - name: account_id
+            description: PK
+            tests:
+              - unique
+              - not_null
+      - name: product_holdings
+        description: The product_holdings table in the input schema.
+        columns:
+          - name: account_id
+            description: FK
+            tests:
+              - relationships:
+                  to: source('input', 'account_info')
+                  field: account_id
+      - name: interactions
+        description: The interactions table in the input schema.
+        columns:
+          - name: account_id
+            description: FK
+            tests:
+              - relationships:
+                  to: source('input', 'account_info')
+                  field: account_id

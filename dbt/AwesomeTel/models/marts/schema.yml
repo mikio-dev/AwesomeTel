@@ -1,0 +1,137 @@
+version: 2
+
+models:
+  - name: account_info
+    description: The account_info table in the marts schema.
+    columns:
+      - name: account_id
+        description: The primary key for the account_info table
+        tests:
+          - unique
+          - not_null
+      - name: language
+        description: The language code chonsen by the account holder (EN, FR, DE, IT)
+        tests:
+          - accepted_values:
+              values: ["EN", "FR", "DE", "IT"]
+      - name: gender
+        description: The gender of the account holder
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["M", "F", "D"]
+      - name: birthday
+        description: The birthday of the account holder (>= 1900-01-01)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= '1900-01-01'::date"
+      - name: zip_code
+        description: The zip_code of the account holder (1000-9999)
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "between '1000' and '9999'"
+      - name: payment_method
+        description: The payment_method of the account holder ("Kreditkarte", "LSV", "Rechnung")
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Kreditkarte", "LSV", "Rechnung"]
+
+  - name: product_holdings
+    description: The product_holdings table in the marts schema.
+    columns:
+      - name: account_id
+        description: FK referencing the account_info table
+        tests:
+          - not_null
+      - name: subscription_id
+        description: The primary key for the product_holdings table
+        tests:
+          - unique
+          - not_null
+      - name: product_family
+        description: The product family of the subscription (Fixline, Internet, Mobile, TV)
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Fixline", "Internet", "Mobile", "TV"]
+      - name: product_name
+        description: The product name of the subscription
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                [
+                  "100",
+                  "1000",
+                  "500",
+                  "Basic",
+                  "CH Flat",
+                  "Europe Flat",
+                  "L",
+                  "M",
+                  "Metered",
+                  "Plus",
+                  "S",
+                  "Unlimited",
+                ]
+      - name: product_price
+        description: The product price of the subscription
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0.0"
+      - name: valid_from
+        description: The start date of the subscription
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= '2000-01-01'::date"
+      - name: valid_to
+        description: The end date of the subscription
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "valid_to >= valid_from"
+
+  - name: interactions
+    description: The interactions table in the marts schema.
+    columns:
+      - name: account_id
+        description: FK referencing the account_info table
+        tests:
+          - not_null
+      - name: date
+        description: The date of the interaction
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "<= current_date"
+      - name: time_in_queue
+        description: The time in queue for the interaction
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      - name: handling_time_s
+        description: The handling time in seconds for the interaction
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      - name: call_reason
+        description: The reason for the call (Billing, Churn, Product, Technical)
+        tests:
+          - accepted_values:
+              values: ["Billing", "Churn", "Product", "Technical"]
+      - name: customer_satisfaction_after_call
+        description: The customer satisfaction after the call (1.0, 2.0, 3.0, 4.0, 5.0)
+        tests:
+          - accepted_values:
+              values: [1.0, 2.0, 3.0, 4.0, 5.0]
+              quote: false
+  - name: account_product_holdings
+    description: The denormalized account_product_holdings table in the marts schema.

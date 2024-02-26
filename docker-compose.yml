@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    env_file:
+      - .env
+    ports:
+      - ${LOCAL_PORT}:5432
+    volumes:
+      - ./db/postgres-data:/var/lib/postgresql/data
